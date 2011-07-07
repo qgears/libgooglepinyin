@@ -1,4 +1,4 @@
-project(fcitx-googlepinyin)
+project(googlepinyin)
 cmake_minimum_required(VERSION 2.6)
 
 # uninstall target
@@ -18,10 +18,8 @@ set(prefix      ${CMAKE_INSTALL_PREFIX})
 set(exec_prefix ${CMAKE_INSTALL_PREFIX})
 set(bindir ${prefix}/bin)
 set(libdir ${LIB_INSTALL_DIR})
-set(addondir ${libdir}/${package} )
-set(pkgdatadir ${CMAKE_INSTALL_PREFIX}/share/${package})
 set(localedir ${CMAKE_INSTALL_PREFIX}/share/locale)
-set(includedir  ${CMAKE_INSTALL_PREFIX}/include)
+set(includedir  ${CMAKE_INSTALL_PREFIX}/include/googlepinyin)
 set(CMAKE_C_FLAGS "-Wall")
 set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined")
 
