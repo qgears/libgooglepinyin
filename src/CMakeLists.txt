@@ -38,8 +38,12 @@ SET_TARGET_PROPERTIES(googlepinyin-static PROPERTIES
     PREFIX "lib"
 )
 
-install(TARGETS googlepinyin googlepinyin-static
+install(TARGETS googlepinyin-static
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}
     ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
 )
 endif (ENABLE_STATIC)
+install(TARGETS googlepinyin
+    LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+    ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
+)
