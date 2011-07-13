@@ -313,6 +313,7 @@ if __name__=="__main__":
             try:
                 i = raw_input('> ')
             except:
+                im_close_decoder()
                 break
             if i and i[0].isalpha():
                 im_reset_search()
