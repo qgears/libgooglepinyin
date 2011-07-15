@@ -2,4 +2,4 @@
 FIND_PACKAGE(PythonLibrary REQUIRED)
 INCLUDE(PythonMacros)
 
-PYTHON_INSTALL(libgooglepinyin.py ${PYTHON_SITE_PACKAGES_INSTALL_DIR}/libgooglepinyin)
+PYTHON_INSTALL(libgooglepinyin.py ${PYTHON_SITE_PACKAGES_INSTALL_DIR})
