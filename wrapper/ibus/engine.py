@@ -152,6 +152,8 @@ class Engine(ibus.EngineBase):
 
     __last_press_keyval = None
     __last_im_flush_cache_time = 0
+    __candidate_num = 0
+    __lookup_candidate_num = 0
 
     def process_key_event(self, keyval, keycode, state):
         ## for key release events
@@ -202,6 +204,7 @@ class Engine(ibus.EngineBase):
                     return False
                 index += self.__lookup_table.get_current_page_start()
                 num = im_choose(int(index))
+                self.__candidate_num = num
                 if num == 1:
                     candidate = im_get_candidate(0)
                     self.__commit_string(candidate)
@@ -258,6 +261,19 @@ class Engine(ibus.EngineBase):
         gobject.idle_add(self.__update, priority = gobject.PRIORITY_LOW)
 
 
+    def __lookup_more_candidates(self):
+        if self.__lookup_candidate_num < self.__candidate_num:
+            num = min(self.__candidate_num,
+                    self.__lookup_candidate_num + self.__lookup_table.get_page_size() + 1)
+            for i in range(self.__lookup_candidate_num, num):
+                text = im_get_candidate(i)
+                self.__lookup_table.append_candidate(ibus.Text(text))
+                pass
+            self.__lookup_candidate_num = num
+            self.__update_lookup_table()
+            pass
+        pass
+
     def page_up(self):
         if self.__lookup_table.page_up():
             self.page_up_lookup_table()
@@ -265,6 +281,7 @@ class Engine(ibus.EngineBase):
         return False
 
     def page_down(self):
+        self.__lookup_more_candidates()
         if self.__lookup_table.page_down():
             self.page_down_lookup_table()
             return True
@@ -277,6 +294,7 @@ class Engine(ibus.EngineBase):
         return False
 
     def cursor_down(self):
+        self.__lookup_more_candidates()
         if self.__lookup_table.cursor_down():
             self.cursor_down_lookup_table()
             return True
@@ -297,16 +315,11 @@ class Engine(ibus.EngineBase):
         if prepinyin_len > 0:
             #attrs.append(ibus.AttributeForeground(0x0000ff, 0, prepinyin_len))
             num = im_search(self.__prepinyin_string.encode('utf8'))
-            if globals().get('im_get_all_candidates'):
-                for text in im_get_all_candidates():
-                    self.__lookup_table.append_candidate(ibus.Text(text))
-                    pass
-                pass
-            else:
-                for i in range(num):
-                    text = im_get_candidate(i)
-                    self.__lookup_table.append_candidate(ibus.Text(text))
-                    pass
+            self.__candidate_num = num
+            self.__lookup_candidate_num = min(num, self.__lookup_table.get_page_size() + 1)
+            for i in range(self.__lookup_candidate_num):
+                text = im_get_candidate(i)
+                self.__lookup_table.append_candidate(ibus.Text(text))
                 pass
             pass
         preedit_string = self.__lookup_table and self.__lookup_table.get_candidate(0).text or u""
@@ -371,6 +384,8 @@ class Engine(ibus.EngineBase):
         self.__double_quotation_state = False
         self.__single_quotation_state = False
         self.__prepinyin_string = u""
+        self.__candidate_num = 0
+        self.__lookup_candidate_num = 0
         self.__invalidate()
         pass
 
