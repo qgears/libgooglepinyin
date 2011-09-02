@@ -230,8 +230,7 @@ class Engine(ibus.EngineBase):
             elif keyval == keysyms.Left or keyval == keysyms.Right:
                 return True
         if keyval in xrange(keysyms.a, keysyms.z + 1) or \
-            (keyval == keysyms.quoteright and self.__prepinyin_string) or \
-            keyval in xrange(keysyms.A, keysyms.Z + 1):
+                (keyval == keysyms.quoteright and self.__prepinyin_string):
             if state & (modifier.CONTROL_MASK | modifier.ALT_MASK) == 0:
                 self.__prepinyin_string += unichr(keyval)
                 self.__invalidate()
