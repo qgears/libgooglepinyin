@@ -11,10 +11,11 @@ opencc is a library for converting character between traditional chinese and sim
 '''
 
 import ctypes
+import ctypes.util
 import sys
 
-libc = ctypes.CDLL("libc.so.6")
-opencc = ctypes.CDLL('libopencc.so.1')
+libc = ctypes.CDLL(ctypes.util.find_library('c'))
+opencc = ctypes.CDLL(ctypes.util.find_library('opencc'))
 od = opencc.opencc_open('zhs2zht.ini')
 
 def convert(text):
