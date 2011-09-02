@@ -31,7 +31,11 @@ from ibus import ascii
 
 #from pygooglepinyin import *
 from googlepinyin import *
-import libopencc
+
+try:
+    import libopencc
+except:
+    pass
 
 app = 'ibus-googlepinyin'
 
@@ -43,7 +47,9 @@ if os.path.isdir(os.path.dirname(sys.argv[0]) + '/../build/mo'):
 else:
     gettext.install(app, unicode=True)
 
-
+import time
+import atexit
+atexit.register(lambda *args: im_flush_cache())
 
 IBUS_GOOGLEPINYIN_LOCATION = path.dirname(__file__)
 
@@ -76,7 +82,9 @@ class Engine(ibus.EngineBase):
         self.__punct_property = ibus.Property(u"full_punct")
         self.__prop_list.append(self.__punct_property)
         self.__trad_chinese_property = ibus.Property(u"_trad chinese")
-        self.__prop_list.append(self.__trad_chinese_property)
+        if globals().get('libopencc'):
+            self.__prop_list.append(self.__trad_chinese_property)
+            pass
 
     def __refresh_properties(self):
         try:
@@ -142,25 +150,24 @@ class Engine(ibus.EngineBase):
     def __is_trad_chinese(self):
         return self.__trad_chinese[self.__mode]
 
-    __prev_keyval = None
+    __last_press_keyval = None
+    __last_im_flush_cache_time = 0
 
     def process_key_event(self, keyval, keycode, state):
-        # ignore key release events
+        ## for key release events
         is_press = ((state & modifier.RELEASE_MASK) == 0)
-        if not is_press:
-            return False
-
-        # Match mode switch hotkey
-        if keyval == self.__prev_keyval \
-                and (modifier.SHIFT_MASK + modifier.RELEASE_MASK) & modifier.RELEASE_MASK:
-            ## Match Shift to switcc English/Chinese mode
-            if keyval == keysyms.Shift_L or keyval == keysyms.Shift_R:
-                self.property_activate("status")
-                self.reset()
-                pass
+        if is_press:
+            self.__last_press_keyval = keyval
             pass
-
-        self.__prev_keyval = keyval
+        ## Match Shift to switcc English/Chinese mode
+        elif keyval == self.__last_press_keyval \
+                and (keyval == keysyms.Shift_L or keyval == keysyms.Shift_R):
+            self.property_activate("status")
+            self.reset()
+            return False
+        ## ignore key release events
+        else:
+            return False
 
         if self.__is_input_english():
             if ascii.isprint(chr(keyval)) and self.__full_width_letter[self.__mode] :
@@ -199,7 +206,10 @@ class Engine(ibus.EngineBase):
                     candidate = im_get_candidate(0)
                     self.__commit_string(candidate)
                     im_reset_search()
-                    im_flush_cache()
+                    if time.time() - self.__last_im_flush_cache_time > 300:
+                        im_flush_cache()
+                        self.__last_im_flush_cache_time = time.time()
+                        pass
                     return True
                 self.__update()
                 return True
@@ -349,20 +359,19 @@ class Engine(ibus.EngineBase):
 
 
     def focus_in(self):
-        im_reset_search()
+        self.reset()
         self.register_properties(self.__prop_list)
         self.__refresh_properties()
 
     def focus_out(self):
-        im_reset_search()
+        self.reset()
         pass
 
     def reset(self):
         im_reset_search()
-        im_flush_cache()
         self.__double_quotation_state = False
         self.__single_quotation_state = False
-        self.__prev_keyval = None
+        self.__prepinyin_string = u""
         self.__invalidate()
         pass
 
