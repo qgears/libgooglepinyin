@@ -29,7 +29,8 @@ from ibus import keysyms
 from ibus import modifier
 from ibus import ascii
 
-from pygooglepinyin import *
+#from pygooglepinyin import *
+from googlepinyin import *
 import libopencc
 
 app = 'ibus-googlepinyin'
@@ -287,9 +288,18 @@ class Engine(ibus.EngineBase):
         if prepinyin_len > 0:
             #attrs.append(ibus.AttributeForeground(0x0000ff, 0, prepinyin_len))
             num = im_search(self.__prepinyin_string.encode('utf8'))
-            for text in im_get_all_candidates():
-                self.__lookup_table.append_candidate(ibus.Text(text))
+            if globals().get('im_get_all_candidates'):
+                for text in im_get_all_candidates():
+                    self.__lookup_table.append_candidate(ibus.Text(text))
+                    pass
                 pass
+            else:
+                for i in range(num):
+                    text = im_get_candidate(i)
+                    self.__lookup_table.append_candidate(ibus.Text(text))
+                    pass
+                pass
+            pass
         preedit_string = self.__lookup_table and self.__lookup_table.get_candidate(0).text or u""
         preedit_len = len(preedit_string)
 
