@@ -3,8 +3,8 @@
 <component>
 	<name>org.freedesktop.IBus.GooglePinyin</name>
 	<description>GooglePinyin Component</description>
-	<exec>${pkgdatadir}/main.py --ibus</exec>
-	<version>@VERSION@</version>
+	<exec>@IBUS_GOOGLEPINYIN_PKGDATADIR@/main.py --ibus</exec>
+	<version>@IBUS_GOOGLEPINYIN_VERSION@</version>
 	<author>Jiahua Huang &lt;jhuangjiahua@gmail.com&gt;</author>
 	<license>GPL</license>
 	<homepage>http://code.google.com/p/libgooglepinyin</homepage>
@@ -17,7 +17,7 @@
 			<language>zh_CN</language>
 			<license>GPL</license>
 			<author>Jiahua Huang &lt;jhuangjiahua@gmail.com&gt;</author>
-			<icon>${pkgdatadir}/icons/ibus-googlepinyin.png</icon>
+			<icon>@IBUS_GOOGLEPINYIN_PKGDATADIR@/icons/ibus-googlepinyin.png</icon>
 			<layout>us</layout>
 			<longname>GooglePinyin</longname>
 			<description>GooglePinyin Input Method</description>
