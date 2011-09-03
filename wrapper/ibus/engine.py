@@ -154,6 +154,7 @@ class Engine(ibus.EngineBase):
     __last_im_flush_cache_time = 0
     __candidate_num = 0
     __lookup_candidate_num = 0
+    __prev_char = u''
 
     def process_key_event(self, keyval, keycode, state):
         ## for key release events
@@ -181,6 +182,11 @@ class Engine(ibus.EngineBase):
 
         if self.__prepinyin_string:
             if keyval == keysyms.Return:
+                if self.__full_width_letter[self.__mode]:
+                    self.__prepinyin_string = u''.join(
+                            (ibus.unichar_half_to_full(c) for c in self.__prepinyin_string)
+                        )
+                    pass
                 self.__commit_string(self.__prepinyin_string)
                 return True
             elif keyval == keysyms.Escape:
@@ -207,6 +213,9 @@ class Engine(ibus.EngineBase):
                 self.__candidate_num = num
                 if num == 1:
                     candidate = im_get_candidate(0)
+                    if self.__trad_chinese[self.__mode]:
+                        candidate = libopencc.convert(candidate)
+                        pass
                     self.__commit_string(candidate)
                     im_reset_search()
                     if time.time() - self.__last_im_flush_cache_time > 300:
@@ -240,6 +249,8 @@ class Engine(ibus.EngineBase):
                 return True
         else:
             c = unichr(keyval)
+            if c == u"." and self.__prev_char and self.__prev_char.isdigit():
+                return False
             if self.__full_width_punct[self.__mode] and c in u'~!$^&*()_[{]}\\|;:\'",<.>/?':
                 c = self.__convert_to_full_width(c)
                 self.__commit_string(c)
@@ -248,9 +259,12 @@ class Engine(ibus.EngineBase):
                 c = ibus.unichar_half_to_full(c)
                 self.__commit_string(c)
                 return True
-            pass
             if keyval < 128 and self.__prepinyin_string:
                 self.__commit_string(self.__prepinyin_string)
+                return True
+            if c.isdigit():
+                self.__commit_string(c)
+                return True
 
         return False
 
@@ -301,11 +315,9 @@ class Engine(ibus.EngineBase):
         return False
 
     def __commit_string(self, text):
-        if self.__trad_chinese[self.__mode]:
-            text = libopencc.convert(text.encode('utf8')).decode('utf8')
-            pass
         self.commit_text(ibus.Text(text))
         self.__prepinyin_string = u""
+        self.__prev_char = text and text[-1] or u''
         self.__update()
 
     def __update(self):
@@ -322,11 +334,12 @@ class Engine(ibus.EngineBase):
                 self.__lookup_table.append_candidate(ibus.Text(text))
                 pass
             pass
-        preedit_string = self.__lookup_table and self.__lookup_table.get_candidate(0).text or u""
+        preedit_string = self.__lookup_table \
+                and self.__lookup_table.get_candidate(0).text.decode('utf8') or u""
         preedit_len = len(preedit_string)
 
         self.update_auxiliary_text(ibus.Text(self.__prepinyin_string, attrs), prepinyin_len > 0)
-        attrs.append(ibus.AttributeUnderline(pango.UNDERLINE_SINGLE, 0, prepinyin_len))
+        attrs.append(ibus.AttributeUnderline(pango.UNDERLINE_SINGLE, 0, preedit_len))
         self.update_preedit_text(ibus.Text(preedit_string, attrs), preedit_len, preedit_len > 0)
         self.__update_lookup_table()
         self.__is_invalidate = False
