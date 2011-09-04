@@ -37,6 +37,8 @@ try:
 except:
     pass
 
+MAX_SPELLINGS = 26
+
 app = 'ibus-googlepinyin'
 
 import os, sys
@@ -243,6 +245,10 @@ class Engine(ibus.EngineBase):
                 return True
         if keyval in xrange(keysyms.a, keysyms.z + 1) or \
                 (keyval == keysyms.quoteright and self.__prepinyin_string):
+            if self.__lookup_table.get_number_of_candidates() \
+                    and len(self.__lookup_table.get_candidate(0).text.decode('utf8'))\
+                        > MAX_SPELLINGS - 1:
+                return True
             if state & (modifier.CONTROL_MASK | modifier.ALT_MASK) == 0:
                 self.__prepinyin_string += unichr(keyval)
                 self.__invalidate()
@@ -335,12 +341,16 @@ class Engine(ibus.EngineBase):
                 pass
             pass
         preedit_string = self.__lookup_table \
+                and self.__lookup_table.get_number_of_candidates() \
                 and self.__lookup_table.get_candidate(0).text.decode('utf8') or u""
         preedit_len = len(preedit_string)
+        preedit_pos = im_get_fixed_len()
 
         self.update_auxiliary_text(ibus.Text(self.__prepinyin_string, attrs), prepinyin_len > 0)
         attrs.append(ibus.AttributeUnderline(pango.UNDERLINE_SINGLE, 0, preedit_len))
-        self.update_preedit_text(ibus.Text(preedit_string, attrs), preedit_len, preedit_len > 0)
+        if prepinyin_len > preedit_pos:
+            attrs.append(ibus.AttributeBackground(0xc8c8f0, preedit_pos, preedit_len))
+        self.update_preedit_text(ibus.Text(preedit_string, attrs), preedit_pos, preedit_len > 0)
         self.__update_lookup_table()
         self.__is_invalidate = False
 
