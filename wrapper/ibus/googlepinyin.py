@@ -13,7 +13,9 @@ import sys
 libc = ctypes.CDLL("libc.so.6")
 ime_pinyin = ctypes.CDLL(ctypes.util.find_library('googlepinyin'), use_errno=True)
 
-FN_SYS_DICT = '/usr/share/googlepinyin/dict_pinyin.dat'
+_a = lambda path: os.path.exists(path) and path or ""
+FN_SYS_DICT = _a('/usr/share/googlepinyin/dict_pinyin.dat')\
+           or _a('/usr/local/share/googlepinyin/dict_pinyin.dat')
 FN_USR_DICT = os.path.expanduser('~/.config/ibus/googlepinyin/userdict_pinyin.dat')
 
 kMaxLemmaSize = 8

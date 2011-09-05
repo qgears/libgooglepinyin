@@ -2,7 +2,6 @@ project(googlepinyin)
 cmake_minimum_required(VERSION 2.6)
 
 option(ENABLE_STATIC "Build static library" False)
-option(ENABLE_PYTHON2 "Install python wrapper" True)
 option(ENABLE_IBUS "Install ibus wrapper" True)
 
 # uninstall target
