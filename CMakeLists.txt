@@ -2,7 +2,9 @@ project(googlepinyin)
 cmake_minimum_required(VERSION 2.6)
 
 option(ENABLE_STATIC "Build static library" False)
-option(ENABLE_IBUS "Install ibus wrapper" True)
+if (EXISTS ${CMAKE_SOURCE_DIR}/wrapper/ibus/CMakeLists.txt)
+    option(ENABLE_IBUS "Install ibus wrapper" True)
+endif()
 
 # uninstall target
 configure_file(
@@ -33,4 +35,6 @@ add_subdirectory(src)
 add_subdirectory(tools)
 add_subdirectory(include)
 add_subdirectory(data)
-add_subdirectory(wrapper)
+if (EXISTS ${CMAKE_SOURCE_DIR}/wrapper/CMakeLists.txt)
+    add_subdirectory(wrapper)
+endif()
