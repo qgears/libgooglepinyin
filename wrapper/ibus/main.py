@@ -30,7 +30,7 @@ class IMApp:
     def __init__(self, exec_by_ibus):
         self.__component = ibus.Component("org.freedesktop.IBus.GooglePinyin",
                                           "GooglePinyin Component",
-                                          "0.1.0",
+                                          "0.1.1",
                                           "GPL",
                                           "Jiahua Huang <jhuangjiahua@gmail.com>")
         self.__component.add_engine("googlepinyin",

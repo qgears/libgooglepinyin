@@ -247,7 +247,7 @@ class Engine(ibus.EngineBase):
                 (keyval == keysyms.quoteright and self.__prepinyin_string):
             if self.__lookup_table.get_number_of_candidates() \
                     and len(self.__lookup_table.get_candidate(0).text.decode('utf8'))\
-                        > MAX_SPELLINGS - 1:
+                        >= MAX_SPELLINGS:
                 return True
             if state & (modifier.CONTROL_MASK | modifier.ALT_MASK) == 0:
                 self.__prepinyin_string += unichr(keyval)
