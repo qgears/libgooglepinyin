@@ -1441,7 +1441,7 @@ size_t MatrixSearch::extend_dmi(DictExtPara *dep, DictMatchInfo *dmi_s) {
     lpi_total_ = lpi_num;
 
   if (NULL == dmi_s) {  // from root
-    assert(0 != handles[0]);
+    // assert(0 != handles[0]);
     mtrx_dmi_fr = dmi_pool_used_;
   }
 
